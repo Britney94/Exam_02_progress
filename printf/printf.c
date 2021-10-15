@@ -6,7 +6,7 @@
 /*   By: kejebane <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 15:55:28 by kejebane          #+#    #+#             */
-/*   Updated: 2021/10/15 18:00:53 by kejebane         ###   ########.fr       */
+/*   Updated: 2021/10/15 19:29:11 by kejebane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int		is_in(char c, char *s)
 int		flag_init(t_Flags *flags)
 {
 	flags->width = 0;
-	flags->periodd = 0;
+	flags->period = 0;
 	flags->precision = 0;
 	flags->format_id = 0;
 }
@@ -62,7 +62,7 @@ int		ft_atoi(char *s)
 }
 		
 
-char	*save_width(t_Flags *flags, char *s)
+char	*save_width(t_Flags *flags, char *s, int *j)
 {
 	int		i;
 
@@ -71,31 +71,55 @@ char	*save_width(t_Flags *flags, char *s)
 		i++;
 	res  = malloc(sizeof(char) * (i + 1));
 	i = 0;
-	while (is_in(s[i], "0123456789") == 1)
-	{
-		res[i] = s[i];
-		i++;
-	}
+	while (is_in(s[*j], "0123456789") == 1)
+		res[i++] = s[*j++];
 	res = '\0';
-	flags->width = ft_atoi(res);
 	return (res);
 }
 
-int		flag_init(t_Flags *flag, char *s)
+int		flag_assign(t_Flags *flags, char *s, int *i)
 {
-	int		i;
+//	int		i;
 	int		current;
+	char	*width_str;
 
-	i = 0;
-	while (is_in(s[i], ".0123456789") == 1
-			&& is_in(s[i], "sdx") == 0)
+//	i = 0;
+	while (is_in(s[*i], ".0123456789") == 1
+			&& is_in(s[*i], "sdx") == 0)
 	{
-		save_width(flags, s);
-		//ICI
-		
+		width_str = save_width(flags, s + *i, i);
+		flags->width = ft_atoi(width_str);
+		if (s[*i] == '.')
+		{
+			flags.period == 1;
+			*i++;
+		}
+		free(width_str);
+		width_str = save_width(flags, s + *i, i);
+		flags->prcision = ft_atoi(width_str);
+		free(width_str);
+		*i++;
+	}
+	if (is_in(s[*i], "sdx") == 1)
+		flags->format_id = s[*i];
+	return (0);
+}
 
+int		wyd_all(va_list va, t_Flags *flags)
+{
+	int		q;
 
-
+	q = 0;
+	if (flags->format_id == 's')
+	{
+		str = va_arg(va, char *);
+		while (str[q])
+			write(1, &str[q++], 1);
+	}
+//	if (flags->format_id == 'x')
+//	if (flags->format_id == 'd')
+	return (0);
+}
 
 int		ft_printf(const char *s, ...)
 {
@@ -110,4 +134,14 @@ int		ft_printf(const char *s, ...)
 	{
 		if (s[i] == '%')
 		{
-			flag_init(&flags, s + i);
+			flags_init(&flags);
+			flag_assign(&flags, s + i, &i);
+			wyd_all(va, &flags);
+			//WIDTH AND PRECISION PROCESSING MISSING
+		}
+		else
+			ft_putchar(s[i]);
+		i++;
+	}
+	return (0);
+}
