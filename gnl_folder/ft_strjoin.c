@@ -6,7 +6,7 @@
 /*   By: kejebane <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/23 16:11:11 by kejebane          #+#    #+#             */
-/*   Updated: 2021/10/24 19:06:49 by kejebane         ###   ########.fr       */
+/*   Updated: 2021/10/24 20:16:31 by kejebane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ int		ft_strlen(char *s)
 	int		i;
 
 	i = 0;
+	if (!s)
+		return (i);
 	while (s[i])
 		i++;
 	return (i);
@@ -40,10 +42,13 @@ char	*ft_strjoin(char *s1, char *s2)
 	res = malloc(sizeof(char) * (size + 1));
 	if (!res)
 		return (NULL);
-	while (s1[i])
+	if (s1)
 	{
-		res[i] = s1[i];
-		i++;
+		while (s1[i])
+		{
+			res[i] = s1[i];
+			i++;
+		}
 	}
 	y = 0;
 	while (s2[y])
@@ -57,18 +62,30 @@ char	*ft_strdup(char *s)
 	int		i;
 	char	*res;
 
-	i = ft_strlen(s);
+	i = 0;
+	while (s[i] && s[i] != '\n')
+		i++;
 	res = malloc(sizeof(char) * i + 1);
 	if (!res)
 		return (NULL);
 	i = 0;
-	while (s[i])
+	while (s[i] && s[i] != '\n')
 	{
 		res[i] = s[i];
 		i++;
 	}
 	res[i] = '\0';
 	return (res);
+}
+
+char	*ft_bzero(char *s)
+{
+	int		i;
+
+	i = 0;
+	while (s[i])
+		s[i++] = '\0';
+	return (s);
 }
 
 int		get_next_line(int fd, char **line)
@@ -88,15 +105,17 @@ int		get_next_line(int fd, char **line)
 		reader = read(fd, buffer, 1);
 		if (reader == -1)
 			return (-1);
+		time = time + 1;
+		printf("buff = [%s] - %d\n", buffer, buffer[0]);//
 		buffer[reader] = '\0';
-		if (time)
-			free(rest);
+//		if (time)
+//			free(rest);
 		rest = ft_strjoin(rest, buffer);
+//		return (reader);
 	}
 //	printf("line = %s", *line);
 	*line = ft_strdup(rest);
-	time++;
-
+	rest = ft_bzero(rest);
 	return (reader);
 }
 
