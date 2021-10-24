@@ -6,13 +6,14 @@
 /*   By: kejebane <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/23 16:11:11 by kejebane          #+#    #+#             */
-/*   Updated: 2021/10/23 17:30:38 by kejebane         ###   ########.fr       */
+/*   Updated: 2021/10/24 19:06:49 by kejebane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <string.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <fcntl.h>
 
 int		ft_strlen(char *s)
 {
@@ -51,23 +52,68 @@ char	*ft_strjoin(char *s1, char *s2)
 	return (res);
 }
 
-int		get_next_line(char **line)
+char	*ft_strdup(char *s)
+{
+	int		i;
+	char	*res;
+
+	i = ft_strlen(s);
+	res = malloc(sizeof(char) * i + 1);
+	if (!res)
+		return (NULL);
+	i = 0;
+	while (s[i])
+	{
+		res[i] = s[i];
+		i++;
+	}
+	res[i] = '\0';
+	return (res);
+}
+
+int		get_next_line(int fd, char **line)
 {
 	char 			buffer[2];
 	static char		*rest;
+	static int		time;
 	int				reader;
-	int				fd;
+//	int				fd;
 
-	fd = 0;
+//	fd = 0;
 	reader = 1;
 	if (!line)
 		return (-1);
 	while (buffer[0] != '\n' && reader != 0)
 	{
-		if ((reader = read(fd, buffer, 1)) == (-1))
+		reader = read(fd, buffer, 1);
+		if (reader == -1)
 			return (-1);
 		buffer[reader] = '\0';
+		if (time)
+			free(rest);
 		rest = ft_strjoin(rest, buffer);
 	}
-	*line = push_line(rest);
-	rest = 
+//	printf("line = %s", *line);
+	*line = ft_strdup(rest);
+	time++;
+
+	return (reader);
+}
+
+int        main(int argc, char **argv)
+{
+    char        *line;
+    int            fd1;
+	int			ret;
+
+    (void)argc;
+//    fd1 = 0;
+	fd1 = open(argv[1], O_RDONLY);
+    while ((ret = get_next_line(fd1, &line)) == 1)
+	{
+		printf("[%d] - >>%s<<\n", ret, line);
+	}
+    printf("[%d] - >>%s<<\n", ret, line);
+	close(fd1);
+    return (0);
+}
