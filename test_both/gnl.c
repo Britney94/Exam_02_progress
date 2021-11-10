@@ -21,6 +21,8 @@ char	*ft_strdup(char *s)
 	int	i;
 	char	*res;
 
+	if (!s)
+		return (NULL);
 	i = ft_strlen(s);
 	res = malloc(sizeof(char) * i + 1);
 	if (!res)
@@ -68,6 +70,8 @@ char	*retrieve_after_newline(char *s)
 	char 	*res;
 
 	i = 0;
+	if (!s)
+		return (NULL);
 	while (s[i] && s[i] != '\n')
 		i++;
 	if (s[i] == '\n')
@@ -97,6 +101,8 @@ char	*cut_before_newline(char *s)
 
 	i = 0;
 	nl = 0;
+	if (!s)
+		return (NULL);
 	while (s[i] && s[i] != 10)
 		i++;
 	if (s[i] == 10)
@@ -130,23 +136,76 @@ int	is_in(char c, char *s)
 	return (0);
 }
 
+int	nb_newline(char *s)
+{
+	int	i;
+	int	nb;
+
+	nb = 0;
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == '\n')
+			nb++;
+		i++;
+	}
+	return (nb);
+}
+
+int	find_newline(char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == '\n')
+			return (i);
+		i++;
+	}
+	return (-1);
+}
+
 char	*get_next_line(int fd)
 {
 	int	reader;
 	char	buff[BUFFER_SIZE + 1];
 	char	*tmp;
 	char	*line;
-	char		*all;
-	static char	*after;
+	static char	*all;
 	static int	time;
 
 	reader = 1;
-	while (reader > 0 || is_in(10, buff) == 0)
+/*	if (time)
+	{
+		printf("time - buff = [%s]\n", buff);
+//		all = ft_strdup(after);
+		if (nb_newline(buff) == 1)
+			all = retrieve_after_newline(buff + 1);
+		else if (nb_newline(buff) >= 2)
+		{
+			tmp = ft_strdup(after);
+			free(after);
+			after = retrieve_after_newline(tmp);
+			free(tmp);
+			tmp = ft_strdup(all);
+			free(all);
+			all = cut_before_newline(tmp);
+			free(tmp);
+			return (all);
+		}
+	}
+*/
+//	while (reader > 0 && is_in('\n', buff) == 0)
+	while (reader > 0 && buff[0] != '\n')
+//	while (reader > 0)
 	{
 		reader = read(fd, buff, BUFFER_SIZE);
+		printf("reader = %d || ", reader);
 		if (reader < 0)
 			return (NULL);
 		buff[BUFFER_SIZE] = '\0';
+		printf("buff = [%s]\n", buff);
 		if (time == 0)
 			all = ft_strdup(buff);
 		else
@@ -154,13 +213,17 @@ char	*get_next_line(int fd)
 			tmp = ft_strdup(all);
 			free(all);
 			all = ft_strjoin(tmp, buff);
+			free(tmp);
 		}
 		time++;
+//		if (is_in('\n', buff) == 1)
+//			break;
 	}
-	if (is_in('\n', buff) == 1)
-	       after = retrieve_after_newline(buff);
 	line = cut_before_newline(all);
+	tmp = ft_strdup(all);
 	free(all);
+	all = retrieve_after_newline(tmp);
+	free(tmp);
 	return (line);
 }
 
@@ -170,9 +233,18 @@ int	main(int ac, char **av)
 	int	b;
 	char	*gnl;
 
-//	fd = 0;
-	fd = open("keele.txt", O_RDONLY);
-	b = 1;
+	fd = 0;
+//	fd = open("keele.txt", O_RDONLY);
+	gnl = get_next_line(fd);
+	printf(">>>%s<<<\n", gnl);
+	free(gnl);
+	gnl = get_next_line(fd);
+	printf(">>>%s<<<\n", gnl);
+	free(gnl);
+	gnl = get_next_line(fd);
+	printf(">>>%s<<<\n", gnl);
+	free(gnl);
+/*	b = 1;
 	while (b == 1)
 	{	
 		gnl = get_next_line(fd);
@@ -180,4 +252,5 @@ int	main(int ac, char **av)
 			b++;
 		printf(">>>%s<<<\n", gnl);
 	}
+*/
 }
