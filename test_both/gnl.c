@@ -50,10 +50,13 @@ char	*ft_strjoin(char *s1, char *s2)
 	if (!res)
 		return (NULL);
 	i = 0;
-	while (s1[i])
+	if (s1)
 	{
-		res[i] = s1[i];
-		i++;
+		while (s1[i])
+		{
+			res[i] = s1[i];
+			i++;
+		}
 	}
 	y = 0;
 	while (s2[y])
